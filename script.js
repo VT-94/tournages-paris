@@ -14,6 +14,15 @@ function getColor(type) {
   return typeColors[type] || typeColors["Autre"];
 }
 
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  return new Date(dateStr).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 function makeSvgMarker(color, innerSvg) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28"><circle cx="14" cy="14" r="12.5" fill="${color}" stroke="white" stroke-width="2"/>${innerSvg}</svg>`;
   return "data:image/svg+xml," + encodeURIComponent(svg);
@@ -154,6 +163,10 @@ async function loadData() {
         adresse_lieu: item.adresse_lieu,
 
         annee_tournage: item.annee_tournage,
+
+        date_debut: item.date_debut,
+
+        date_fin: item.date_fin,
       });
 
       features.push(feature);
@@ -201,8 +214,8 @@ map.on("pointermove", function (event) {
 
   if (pinnedCluster) {
     const hovered = map.forEachFeatureAtPixel(event.pixel, (f) => f);
-    if (hovered === pinnedCluster) return;
-    pinnedCluster = null;
+    map.getTargetElement().style.cursor = hovered ? "pointer" : "";
+    return;
   }
 
   const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
@@ -226,6 +239,10 @@ map.on("pointermove", function (event) {
   const inner = typeIconInners[type] || typeIconInners["Autre"];
   const iconSrc = makeSvgBadgeIcon(inner);
 
+  const debut = formatDate(actual.get("date_debut"));
+  const fin = formatDate(actual.get("date_fin"));
+  const periode = debut && fin ? `du ${debut} au ${fin}` : debut ? `à partir du ${debut}` : null;
+
   popupContainer.innerHTML = `
     <div class="popup-header">
       <h3 class="popup-title">${actual.get("nom_tournage") || "Sans nom"}</h3>
@@ -239,10 +256,11 @@ map.on("pointermove", function (event) {
         <span class="popup-label">Adresse</span>
         <span class="popup-value">${actual.get("adresse_lieu") || "—"}</span>
       </div>
+      ${periode ? `
       <div class="popup-row">
-        <span class="popup-label">Année</span>
-        <span class="popup-value">${actual.get("annee_tournage") || "—"}</span>
-      </div>
+        <span class="popup-label">Dates</span>
+        <span class="popup-value">${periode}</span>
+      </div>` : ""}
     </div>
   `;
 
@@ -261,6 +279,7 @@ map.on("singleclick", function (event) {
   const features = feature.get("features");
   if (!features || features.length <= 1) {
     pinnedCluster = null;
+    overlay.setPosition(undefined);
     return;
   }
 
