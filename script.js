@@ -153,22 +153,25 @@ map.on("singleclick", function (event) {
     return;
   }
 
+  const type = feature.get("type_tournage") || "Autre";
+  const color = getColor(type);
+
   popupContainer.innerHTML = `
-            <h3>
-                ${feature.get("nom_tournage") || "Sans nom"}
-            </h3>
-
-            <strong>Type :</strong>
-            ${feature.get("type_tournage") || ""}
-            <br>
-
-            <strong>Adresse :</strong>
-            ${feature.get("adresse_lieu") || ""}
-            <br>
-
-            <strong>Année :</strong>
-            ${feature.get("annee_tournage") || ""}
-        `;
+    <div class="popup-header">
+      <h3 class="popup-title">${feature.get("nom_tournage") || "Sans nom"}</h3>
+      <span class="popup-badge" style="background:${color}">${type}</span>
+    </div>
+    <div class="popup-body">
+      <div class="popup-row">
+        <span class="popup-label">Adresse</span>
+        <span class="popup-value">${feature.get("adresse_lieu") || "—"}</span>
+      </div>
+      <div class="popup-row">
+        <span class="popup-label">Année</span>
+        <span class="popup-value">${feature.get("annee_tournage") || "—"}</span>
+      </div>
+    </div>
+  `;
 
   overlay.setPosition(event.coordinate);
 });
