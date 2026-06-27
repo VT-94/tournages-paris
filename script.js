@@ -192,11 +192,18 @@ const overlay = new ol.Overlay({
 map.addOverlay(overlay);
 
 let lastMoveTime = 0;
+let pinnedCluster = null;
 
 map.on("pointermove", function (event) {
   const now = Date.now();
   if (now - lastMoveTime < 30) return;
   lastMoveTime = now;
+
+  if (pinnedCluster) {
+    const hovered = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+    if (hovered === pinnedCluster) return;
+    pinnedCluster = null;
+  }
 
   const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
 
@@ -236,6 +243,55 @@ map.on("pointermove", function (event) {
         <span class="popup-label">Année</span>
         <span class="popup-value">${actual.get("annee_tournage") || "—"}</span>
       </div>
+    </div>
+  `;
+
+  overlay.setPosition(event.coordinate);
+});
+
+map.on("singleclick", function (event) {
+  const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+
+  if (!feature) {
+    pinnedCluster = null;
+    overlay.setPosition(undefined);
+    return;
+  }
+
+  const features = feature.get("features");
+  if (!features || features.length <= 1) {
+    pinnedCluster = null;
+    return;
+  }
+
+  pinnedCluster = feature;
+
+  const listItems = features
+    .map((f) => {
+      const type = f.get("type_tournage") || "Autre";
+      const color = getColor(type);
+      const inner = typeIconInners[type] || typeIconInners["Autre"];
+      const iconSrc = makeSvgBadgeIcon(inner);
+      const year = f.get("annee_tournage");
+      return `
+        <div class="popup-list-item">
+          <span class="popup-badge" style="background:${color};padding:2px 7px">
+            <img src="${iconSrc}" width="14" height="14" style="vertical-align:middle;margin-right:4px">
+            ${type}
+          </span>
+          <span class="popup-list-title">${f.get("nom_tournage") || "Sans nom"}</span>
+          ${year ? `<span class="popup-list-year">${year}</span>` : ""}
+        </div>
+      `;
+    })
+    .join("");
+
+  popupContainer.innerHTML = `
+    <div class="popup-header">
+      <h3 class="popup-title">${features.length} tournages</h3>
+    </div>
+    <div class="popup-body popup-list">
+      ${listItems}
     </div>
   `;
 
