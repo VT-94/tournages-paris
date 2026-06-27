@@ -19,6 +19,11 @@ function makeSvgMarker(color, innerSvg) {
   return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 
+function makeSvgBadgeIcon(innerSvg) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">${innerSvg}</svg>`;
+  return "data:image/svg+xml," + encodeURIComponent(svg);
+}
+
 const typeIconInners = {
   "Long métrage": `<rect x="7" y="12" width="14" height="9" rx="1.5" fill="none" stroke="white" stroke-width="1.5"/><rect x="7" y="9" width="14" height="4" rx="1" fill="none" stroke="white" stroke-width="1.5"/><line x1="11" y1="9" x2="9.5" y2="13" stroke="white" stroke-width="1.5"/><line x1="15" y1="9" x2="13.5" y2="13" stroke="white" stroke-width="1.5"/><line x1="19" y1="9" x2="17.5" y2="13" stroke="white" stroke-width="1.5"/>`,
   "Série TV": `<rect x="6" y="8" width="16" height="12" rx="1.5" fill="none" stroke="white" stroke-width="1.5"/><line x1="14" y1="20" x2="14" y2="22" stroke="white" stroke-width="1.5"/><line x1="11" y1="22" x2="17" y2="22" stroke="white" stroke-width="1.5"/>`,
@@ -160,22 +165,28 @@ const overlay = new ol.Overlay({
 
 map.addOverlay(overlay);
 
-map.on("singleclick", function (event) {
+map.on("pointermove", function (event) {
   const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+
+  map.getTargetElement().style.cursor = feature ? "pointer" : "";
 
   if (!feature) {
     overlay.setPosition(undefined);
-
     return;
   }
 
   const type = feature.get("type_tournage") || "Autre";
   const color = getColor(type);
+  const inner = typeIconInners[type] || typeIconInners["Autre"];
+  const iconSrc = makeSvgBadgeIcon(inner);
 
   popupContainer.innerHTML = `
     <div class="popup-header">
       <h3 class="popup-title">${feature.get("nom_tournage") || "Sans nom"}</h3>
-      <span class="popup-badge" style="background:${color}">${type}</span>
+      <span class="popup-badge" style="background:${color}">
+        <img src="${iconSrc}" width="20" height="20" style="vertical-align:middle;margin-right:5px">
+        ${type}
+      </span>
     </div>
     <div class="popup-body">
       <div class="popup-row">
