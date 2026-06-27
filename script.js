@@ -55,16 +55,42 @@ function getMarkerStyle(type) {
 
 const vectorSource = new ol.source.Vector();
 
+const clusterSource = new ol.source.Cluster({
+  distance: 40,
+  source: vectorSource,
+});
+
 // =====================
 // COUCHE
 // =====================
 
+const clusterStyleCache = {};
+
 const vectorLayer = new ol.layer.Vector({
-  source: vectorSource,
+  source: clusterSource,
 
   style: (feature) => {
-    const type = feature.get("type_tournage") || "Autre";
-    return getMarkerStyle(type);
+    const features = feature.get("features");
+    if (features.length === 1) {
+      const type = features[0].get("type_tournage") || "Autre";
+      return getMarkerStyle(type);
+    }
+    const count = features.length;
+    if (clusterStyleCache[count]) return clusterStyleCache[count];
+    const radius = count < 10 ? 14 : count < 100 ? 17 : 20;
+    clusterStyleCache[count] = new ol.style.Style({
+      image: new ol.style.Circle({
+        radius,
+        fill: new ol.style.Fill({ color: "rgba(20, 60, 160, 0.85)" }),
+        stroke: new ol.style.Stroke({ color: "white", width: 2 }),
+      }),
+      text: new ol.style.Text({
+        text: count.toString(),
+        fill: new ol.style.Fill({ color: "white" }),
+        font: `bold ${radius - 2}px Arial, sans-serif`,
+      }),
+    });
+    return clusterStyleCache[count];
   },
 });
 
@@ -165,7 +191,13 @@ const overlay = new ol.Overlay({
 
 map.addOverlay(overlay);
 
+let lastMoveTime = 0;
+
 map.on("pointermove", function (event) {
+  const now = Date.now();
+  if (now - lastMoveTime < 30) return;
+  lastMoveTime = now;
+
   const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
 
   map.getTargetElement().style.cursor = feature ? "pointer" : "";
@@ -175,14 +207,21 @@ map.on("pointermove", function (event) {
     return;
   }
 
-  const type = feature.get("type_tournage") || "Autre";
+  const features = feature.get("features");
+  if (!features || features.length !== 1) {
+    overlay.setPosition(undefined);
+    return;
+  }
+
+  const actual = features[0];
+  const type = actual.get("type_tournage") || "Autre";
   const color = getColor(type);
   const inner = typeIconInners[type] || typeIconInners["Autre"];
   const iconSrc = makeSvgBadgeIcon(inner);
 
   popupContainer.innerHTML = `
     <div class="popup-header">
-      <h3 class="popup-title">${feature.get("nom_tournage") || "Sans nom"}</h3>
+      <h3 class="popup-title">${actual.get("nom_tournage") || "Sans nom"}</h3>
       <span class="popup-badge" style="background:${color}">
         <img src="${iconSrc}" width="20" height="20" style="vertical-align:middle;margin-right:5px">
         ${type}
@@ -191,11 +230,11 @@ map.on("pointermove", function (event) {
     <div class="popup-body">
       <div class="popup-row">
         <span class="popup-label">Adresse</span>
-        <span class="popup-value">${feature.get("adresse_lieu") || "—"}</span>
+        <span class="popup-value">${actual.get("adresse_lieu") || "—"}</span>
       </div>
       <div class="popup-row">
         <span class="popup-label">Année</span>
-        <span class="popup-value">${feature.get("annee_tournage") || "—"}</span>
+        <span class="popup-value">${actual.get("annee_tournage") || "—"}</span>
       </div>
     </div>
   `;
