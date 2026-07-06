@@ -352,7 +352,12 @@ map.on("singleclick", function (event) {
 
   pinnedCluster = feature;
 
-  const listItems = visible
+  const listItems = [...visible]
+    .sort((a, b) => {
+      const da = a.get("date_debut") || "";
+      const db = b.get("date_debut") || "";
+      return db.localeCompare(da);
+    })
     .map((f) => {
       const type = f.get("type_tournage") || "Autre";
       const color = getColor(type);
