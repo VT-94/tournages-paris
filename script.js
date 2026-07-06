@@ -167,6 +167,8 @@ async function loadData() {
         date_debut: item.date_debut,
 
         date_fin: item.date_fin,
+
+        nom_realisateur: item.nom_realisateur,
       });
 
       features.push(feature);
@@ -252,6 +254,11 @@ map.on("pointermove", function (event) {
       </span>
     </div>
     <div class="popup-body">
+      ${actual.get("nom_realisateur") ? `
+      <div class="popup-row">
+        <span class="popup-label">Réalisateur</span>
+        <span class="popup-value">${actual.get("nom_realisateur")}</span>
+      </div>` : ""}
       <div class="popup-row">
         <span class="popup-label">Adresse</span>
         <span class="popup-value">${actual.get("adresse_lieu") || "—"}</span>
@@ -291,15 +298,20 @@ map.on("singleclick", function (event) {
       const color = getColor(type);
       const inner = typeIconInners[type] || typeIconInners["Autre"];
       const iconSrc = makeSvgBadgeIcon(inner);
-      const year = f.get("annee_tournage");
+      const debut = formatDate(f.get("date_debut"));
+      const fin = formatDate(f.get("date_fin"));
+      const periode = debut && fin ? `du ${debut} au ${fin}` : debut ? `à partir du ${debut}` : null;
       return `
         <div class="popup-list-item">
           <span class="popup-badge" style="background:${color};padding:2px 7px">
             <img src="${iconSrc}" width="14" height="14" style="vertical-align:middle;margin-right:4px">
             ${type}
           </span>
-          <span class="popup-list-title">${f.get("nom_tournage") || "Sans nom"}</span>
-          ${year ? `<span class="popup-list-year">${year}</span>` : ""}
+          <div class="popup-list-info">
+            <span class="popup-list-title">${f.get("nom_tournage") || "Sans nom"}</span>
+            ${f.get("nom_realisateur") ? `<span class="popup-list-director">${f.get("nom_realisateur")}</span>` : ""}
+            ${periode ? `<span class="popup-list-year">${periode}</span>` : ""}
+          </div>
         </div>
       `;
     })
