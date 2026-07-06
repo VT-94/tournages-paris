@@ -253,6 +253,7 @@ map.addOverlay(overlay);
 
 let lastMoveTime = 0;
 let pinnedCluster = null;
+let pinnedCoordinate = null;
 
 map.on("pointermove", function (event) {
   const now = Date.now();
@@ -351,7 +352,12 @@ map.on("singleclick", function (event) {
   }
 
   pinnedCluster = feature;
+  pinnedCoordinate = event.coordinate;
 
+  renderClusterPopup(visible, event.coordinate);
+});
+
+function renderClusterPopup(visible, coordinate) {
   const listItems = [...visible]
     .sort((a, b) => {
       const da = a.get("date_debut") || "";
@@ -389,15 +395,15 @@ map.on("singleclick", function (event) {
 
   popupContainer.innerHTML = `
     <div class="popup-header">
-      <h3 class="popup-title">${visible.length} tournages</h3>
+      <h3 class="popup-title">${visible.length} tournage${visible.length > 1 ? "s" : ""}</h3>
     </div>
     <div class="popup-body popup-list">
       ${listItems}
     </div>
   `;
 
-  overlay.setPosition(event.coordinate);
-});
+  overlay.setPosition(coordinate);
+}
 
 // =====================
 // LEGENDE
@@ -435,6 +441,17 @@ function buildLegend(seenTypes) {
       }
       Object.keys(clusterStyleCache).forEach((k) => delete clusterStyleCache[k]);
       vectorLayer.changed();
+      if (pinnedCluster && pinnedCoordinate) {
+        const features = pinnedCluster.get("features");
+        const visible = features.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+        if (visible.length >= 2) {
+          renderClusterPopup(visible, pinnedCoordinate);
+        } else {
+          pinnedCluster = null;
+          pinnedCoordinate = null;
+          overlay.setPosition(undefined);
+        }
+      }
     });
     legend.appendChild(item);
   });

@@ -209,8 +209,7 @@ body {
   position: absolute;
   background: white;
   border-radius: 12px;
-  min-width: 260px;
-  max-width: 320px;
+  width: 420px;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.15),
     0 2px 6px rgba(0, 0, 0, 0.08);
@@ -295,6 +294,14 @@ body {
   gap: 8px;
   padding: 6px 0;
   border-bottom: 1px solid #f5f5f5;
+}
+
+.popup-list-item .popup-badge {
+  flex-shrink: 0;
+  width: 125px;
+  text-align: center;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .popup-list-item:last-child {
