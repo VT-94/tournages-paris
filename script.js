@@ -323,7 +323,7 @@ map.on("pointermove", function (event) {
         periode
           ? `
       <div class="popup-row">
-        <span class="popup-label">Dates</span>
+        <span class="popup-label">${debut === fin ? "Date" : "Dates"}</span>
         <span class="popup-value">${periode}</span>
       </div>`
           : ""
