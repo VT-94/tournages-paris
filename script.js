@@ -370,6 +370,86 @@ for (const [type, color] of Object.entries(typeColors)) {
 document.body.appendChild(legend);
 
 // =====================
+// RECHERCHE ADRESSE
+// =====================
+
+const searchSource = new ol.source.Vector();
+
+const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 52 64" width="40" height="55"><defs><filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.45)"/></filter></defs><path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 28 16 28S32 28 32 16C32 7.163 24.837 0 16 0z" fill="#E63946" stroke="white" stroke-width="3" filter="url(#s)"/><circle cx="16" cy="16" r="6" fill="white"/></svg>`;
+
+const searchLayer = new ol.layer.Vector({
+  source: searchSource,
+  style: new ol.style.Style({
+    image: new ol.style.Icon({
+      src: "data:image/svg+xml," + encodeURIComponent(pinSvg),
+      anchor: [0.5, 1],
+      anchorXUnits: "fraction",
+      anchorYUnits: "fraction",
+    }),
+  }),
+});
+
+map.addLayer(searchLayer);
+
+const searchInput = document.getElementById("search-input");
+const searchResultsList = document.getElementById("search-results");
+let searchTimeout = null;
+
+searchInput.addEventListener("input", function () {
+  clearTimeout(searchTimeout);
+  const q = searchInput.value.trim();
+  if (q.length < 3) {
+    searchResultsList.innerHTML = "";
+    searchResultsList.classList.remove("visible");
+    return;
+  }
+  searchTimeout = setTimeout(() => fetchAddresses(q), 300);
+});
+
+searchInput.addEventListener("blur", function () {
+  setTimeout(() => searchResultsList.classList.remove("visible"), 150);
+});
+
+async function fetchAddresses(q) {
+  try {
+    const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=8&lat=48.8566&lon=2.3522`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    searchResultsList.innerHTML = "";
+    if (data.features.length === 0) {
+      searchResultsList.classList.remove("visible");
+      return;
+    }
+
+    data.features.forEach((feature) => {
+      const li = document.createElement("li");
+      li.textContent = feature.properties.label;
+      li.addEventListener("click", () => selectAddress(feature));
+      searchResultsList.appendChild(li);
+    });
+
+    searchResultsList.classList.add("visible");
+  } catch (e) {
+    console.error("Erreur BAN :", e);
+  }
+}
+
+function selectAddress(feature) {
+  const [lon, lat] = feature.geometry.coordinates;
+  const coords = ol.proj.fromLonLat([lon, lat]);
+
+  searchSource.clear();
+  searchSource.addFeature(new ol.Feature({ geometry: new ol.geom.Point(coords) }));
+
+  map.getView().animate({ center: coords, zoom: 16, duration: 800 });
+
+  searchInput.value = feature.properties.label;
+  searchResultsList.innerHTML = "";
+  searchResultsList.classList.remove("visible");
+}
+
+// =====================
 // GEOLOCALISATION
 // =====================
 
