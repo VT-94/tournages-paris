@@ -37,8 +37,8 @@ const typeIconInners = {
   "Long métrage": `<rect x="7" y="12" width="14" height="9" rx="1.5" fill="none" stroke="white" stroke-width="1.5"/><rect x="7" y="9" width="14" height="4" rx="1" fill="none" stroke="white" stroke-width="1.5"/><line x1="11" y1="9" x2="9.5" y2="13" stroke="white" stroke-width="1.5"/><line x1="15" y1="9" x2="13.5" y2="13" stroke="white" stroke-width="1.5"/><line x1="19" y1="9" x2="17.5" y2="13" stroke="white" stroke-width="1.5"/>`,
   "Série TV": `<rect x="6" y="8" width="16" height="12" rx="1.5" fill="none" stroke="white" stroke-width="1.5"/><line x1="14" y1="20" x2="14" y2="22" stroke="white" stroke-width="1.5"/><line x1="11" y1="22" x2="17" y2="22" stroke="white" stroke-width="1.5"/>`,
   "Série Web": `<polygon points="10.5,8.5 10.5,19.5 21,14" fill="white"/>`,
-  "Téléfilm": `<rect x="6" y="11" width="11" height="8" rx="1.5" fill="none" stroke="white" stroke-width="1.5"/><polyline points="17,12.5 22,10 22,18 17,15.5" fill="none" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>`,
-  "Autre": `<polygon points="14,7 16,12 21,12 17,15.5 18.5,20.5 14,17 9.5,20.5 11,15.5 7,12 12,12" fill="white"/>`,
+  Téléfilm: `<rect x="6" y="11" width="11" height="8" rx="1.5" fill="none" stroke="white" stroke-width="1.5"/><polyline points="17,12.5 22,10 22,18 17,15.5" fill="none" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>`,
+  Autre: `<polygon points="14,7 16,12 21,12 17,15.5 18.5,20.5 14,17 9.5,20.5 11,15.5 7,12 12,12" fill="white"/>`,
 };
 
 const markerStyleCache = {};
@@ -243,7 +243,12 @@ map.on("pointermove", function (event) {
 
   const debut = formatDate(actual.get("date_debut"));
   const fin = formatDate(actual.get("date_fin"));
-  const periode = debut && fin ? `du ${debut} au ${fin}` : debut ? `à partir du ${debut}` : null;
+  const periode =
+    debut && fin
+      ? `du ${debut} au ${fin}`
+      : debut
+        ? `à partir du ${debut}`
+        : null;
 
   popupContainer.innerHTML = `
     <div class="popup-header">
@@ -254,20 +259,28 @@ map.on("pointermove", function (event) {
       </span>
     </div>
     <div class="popup-body">
-      ${actual.get("nom_realisateur") ? `
+      ${
+        actual.get("nom_realisateur")
+          ? `
       <div class="popup-row">
         <span class="popup-label">Réalisateur</span>
         <span class="popup-value">${actual.get("nom_realisateur")}</span>
-      </div>` : ""}
+      </div>`
+          : ""
+      }
       <div class="popup-row">
         <span class="popup-label">Adresse</span>
         <span class="popup-value">${actual.get("adresse_lieu") || "—"}</span>
       </div>
-      ${periode ? `
+      ${
+        periode
+          ? `
       <div class="popup-row">
         <span class="popup-label">Dates</span>
         <span class="popup-value">${periode}</span>
-      </div>` : ""}
+      </div>`
+          : ""
+      }
     </div>
   `;
 
@@ -300,7 +313,12 @@ map.on("singleclick", function (event) {
       const iconSrc = makeSvgBadgeIcon(inner);
       const debut = formatDate(f.get("date_debut"));
       const fin = formatDate(f.get("date_fin"));
-      const periode = debut && fin ? `du ${debut} au ${fin}` : debut ? `à partir du ${debut}` : null;
+      const periode =
+        debut && fin
+          ? `du ${debut} au ${fin}`
+          : debut
+            ? `à partir du ${debut}`
+            : null;
       return `
         <div class="popup-list-item">
           <span class="popup-badge" style="background:${color};padding:2px 7px">
@@ -350,6 +368,55 @@ for (const [type, color] of Object.entries(typeColors)) {
 }
 
 document.body.appendChild(legend);
+
+// =====================
+// GEOLOCALISATION
+// =====================
+
+const userSource = new ol.source.Vector();
+
+const userLayer = new ol.layer.Vector({
+  source: userSource,
+  style: new ol.style.Style({
+    image: new ol.style.Circle({
+      radius: 8,
+      fill: new ol.style.Fill({ color: "#4285F4" }),
+      stroke: new ol.style.Stroke({ color: "white", width: 2.5 }),
+    }),
+  }),
+});
+
+map.addLayer(userLayer);
+
+const locateBtn = document.getElementById("locate-btn");
+
+locateBtn.addEventListener("click", function () {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas supportée par votre navigateur.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      const coords = ol.proj.fromLonLat([
+        position.coords.longitude,
+        position.coords.latitude,
+      ]);
+
+      userSource.clear();
+      userSource.addFeature(
+        new ol.Feature({ geometry: new ol.geom.Point(coords) }),
+      );
+
+      map.getView().animate({ center: coords, zoom: 14, duration: 800 });
+
+      locateBtn.classList.add("active");
+    },
+    function () {
+      alert("Impossible d'obtenir votre position.");
+    },
+  );
+});
 
 // =====================
 // START
