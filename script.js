@@ -114,14 +114,49 @@ const vectorLayer = new ol.layer.Vector({
 // CARTE
 // =====================
 
+// =====================
+// FONDS DE CARTE
+// =====================
+
+const basemaps = [
+  {
+    id: "esri-gray",
+    name: "ESRI Gris",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution: "© Esri",
+  },
+  {
+    id: "osm",
+    name: "OpenStreetMap",
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: "© OpenStreetMap contributors",
+  },
+  {
+    id: "google-satellite",
+    name: "Google Satellite",
+    url: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+    attribution: "© Google",
+  },
+  {
+    id: "ign-ortho",
+    name: "IGN Ortho",
+    url: "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg",
+    attribution: "© IGN",
+  },
+];
+
+const basemapLayer = new ol.layer.Tile({
+  source: new ol.source.XYZ({
+    url: basemaps[0].url,
+    attributions: basemaps[0].attribution,
+  }),
+});
+
 const map = new ol.Map({
   target: "map",
 
   layers: [
-    new ol.layer.Tile({
-      source: new ol.source.OSM(),
-    }),
-
+    basemapLayer,
     vectorLayer,
   ],
 
@@ -527,6 +562,40 @@ locateBtn.addEventListener("click", function () {
       alert("Impossible d'obtenir votre position.");
     },
   );
+});
+
+// =====================
+// SÉLECTEUR DE FOND DE CARTE
+// =====================
+
+const basemapBtn = document.getElementById("basemap-btn");
+const basemapPanel = document.getElementById("basemap-panel");
+
+basemaps.forEach((bm, i) => {
+  const item = document.createElement("div");
+  item.className = "basemap-item" + (i === 0 ? " basemap-item--active" : "");
+  item.dataset.id = bm.id;
+  item.textContent = bm.name;
+  item.addEventListener("click", (e) => {
+    e.stopPropagation();
+    basemapLayer.setSource(
+      new ol.source.XYZ({ url: bm.url, attributions: bm.attribution }),
+    );
+    basemapPanel.querySelectorAll(".basemap-item").forEach((el) =>
+      el.classList.remove("basemap-item--active"),
+    );
+    item.classList.add("basemap-item--active");
+  });
+  basemapPanel.appendChild(item);
+});
+
+basemapBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  basemapPanel.classList.toggle("basemap-panel--open");
+});
+
+document.addEventListener("click", () => {
+  basemapPanel.classList.remove("basemap-panel--open");
 });
 
 // =====================
