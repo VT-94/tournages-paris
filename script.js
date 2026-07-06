@@ -58,6 +58,8 @@ function getMarkerStyle(type) {
   return markerStyleCache[type];
 }
 
+const activeTypes = new Set();
+
 // =====================
 // SOURCE VECTEUR
 // =====================
@@ -80,11 +82,16 @@ const vectorLayer = new ol.layer.Vector({
 
   style: (feature) => {
     const features = feature.get("features");
-    if (features.length === 1) {
-      const type = features[0].get("type_tournage") || "Autre";
+    const visible = features.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+
+    if (visible.length === 0) return null;
+
+    if (visible.length === 1) {
+      const type = visible[0].get("type_tournage") || "Autre";
       return getMarkerStyle(type);
     }
-    const count = features.length;
+
+    const count = visible.length;
     if (clusterStyleCache[count]) return clusterStyleCache[count];
     const radius = count < 10 ? 14 : count < 100 ? 17 : 20;
     clusterStyleCache[count] = new ol.style.Style({
@@ -174,6 +181,9 @@ async function loadData() {
       features.push(feature);
     });
 
+    const seenTypes = new Set(data.map((item) => item.type_tournage).filter(Boolean));
+    buildLegend(seenTypes);
+
     vectorSource.addFeatures(features);
 
     map.getView().fit(vectorSource.getExtent(), {
@@ -230,12 +240,13 @@ map.on("pointermove", function (event) {
   }
 
   const features = feature.get("features");
-  if (!features || features.length !== 1) {
+  const visible = features?.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+  if (!visible || visible.length !== 1) {
     overlay.setPosition(undefined);
     return;
   }
 
-  const actual = features[0];
+  const actual = visible[0];
   const type = actual.get("type_tournage") || "Autre";
   const color = getColor(type);
   const inner = typeIconInners[type] || typeIconInners["Autre"];
@@ -297,7 +308,8 @@ map.on("singleclick", function (event) {
   }
 
   const features = feature.get("features");
-  if (!features || features.length <= 1) {
+  const visible = features?.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+  if (!visible || visible.length <= 1) {
     pinnedCluster = null;
     overlay.setPosition(undefined);
     return;
@@ -305,7 +317,7 @@ map.on("singleclick", function (event) {
 
   pinnedCluster = feature;
 
-  const listItems = features
+  const listItems = visible
     .map((f) => {
       const type = f.get("type_tournage") || "Autre";
       const color = getColor(type);
@@ -337,7 +349,7 @@ map.on("singleclick", function (event) {
 
   popupContainer.innerHTML = `
     <div class="popup-header">
-      <h3 class="popup-title">${features.length} tournages</h3>
+      <h3 class="popup-title">${visible.length} tournages</h3>
     </div>
     <div class="popup-body popup-list">
       ${listItems}
@@ -352,22 +364,41 @@ map.on("singleclick", function (event) {
 // =====================
 
 const legend = document.createElement("div");
-
 legend.className = "legend";
-
 legend.innerHTML = "<strong>Type de tournage</strong>";
-
-for (const [type, color] of Object.entries(typeColors)) {
-  const inner = typeIconInners[type] || typeIconInners["Autre"];
-  legend.innerHTML += `
-    <div class="legend-item">
-      <img src="${makeSvgMarker(color, inner)}" width="20" height="20" style="margin-right:8px;flex-shrink:0">
-      ${type}
-    </div>
-  `;
-}
-
 document.body.appendChild(legend);
+
+function buildLegend(seenTypes) {
+  legend.querySelectorAll(".legend-toggle").forEach((el) => el.remove());
+  activeTypes.clear();
+
+  const knownOrder = Object.keys(typeColors).filter((t) => t !== "Autre");
+  const sorted = [
+    ...knownOrder.filter((t) => seenTypes.has(t)),
+    ...[...seenTypes].filter((t) => !knownOrder.includes(t)),
+  ];
+
+  sorted.forEach((type) => {
+    activeTypes.add(type);
+    const color = getColor(type);
+    const inner = typeIconInners[type] || typeIconInners["Autre"];
+    const item = document.createElement("div");
+    item.className = "legend-item legend-toggle";
+    item.innerHTML = `<img src="${makeSvgMarker(color, inner)}" width="20" height="20" style="margin-right:8px;flex-shrink:0">${type}`;
+    item.addEventListener("click", () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        item.classList.add("legend-toggle--off");
+      } else {
+        activeTypes.add(type);
+        item.classList.remove("legend-toggle--off");
+      }
+      Object.keys(clusterStyleCache).forEach((k) => delete clusterStyleCache[k]);
+      vectorLayer.changed();
+    });
+    legend.appendChild(item);
+  });
+}
 
 // =====================
 // RECHERCHE ADRESSE

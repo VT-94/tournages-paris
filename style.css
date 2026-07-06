@@ -30,6 +30,23 @@ body {
   margin-top: 5px;
 }
 
+.legend-toggle {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin-left: -4px;
+}
+
+.legend-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.legend-toggle--off {
+  opacity: 0.35;
+}
+
 .legend-color {
   width: 14px;
   height: 14px;
