@@ -291,7 +291,7 @@ map.on("pointermove", function (event) {
   const fin = formatDate(actual.get("date_fin"));
   const periode =
     debut && fin
-      ? `du ${debut} au ${fin}`
+      ? debut === fin ? `le ${debut}` : `du ${debut} au ${fin}`
       : debut
         ? `à partir du ${debut}`
         : null;
@@ -362,7 +362,7 @@ map.on("singleclick", function (event) {
       const fin = formatDate(f.get("date_fin"));
       const periode =
         debut && fin
-          ? `du ${debut} au ${fin}`
+          ? debut === fin ? `le ${debut}` : `du ${debut} au ${fin}`
           : debut
             ? `à partir du ${debut}`
             : null;
