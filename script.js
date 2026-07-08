@@ -251,9 +251,30 @@ const overlay = new ol.Overlay({
 
 map.addOverlay(overlay);
 
+
 let lastMoveTime = 0;
 let pinnedCluster = null;
 let pinnedCoordinate = null;
+let hideTimeout = null;
+let currentHoveredFeature = null;
+
+function scheduleHide() {
+  clearTimeout(hideTimeout);
+  hideTimeout = setTimeout(() => {
+    overlay.setPosition(undefined);
+    currentHoveredFeature = null;
+  }, 400);
+}
+
+function cancelHide() {
+  clearTimeout(hideTimeout);
+}
+
+popupContainer.addEventListener("mouseenter", cancelHide);
+popupContainer.addEventListener("mouseleave", () => {
+  overlay.setPosition(undefined);
+  currentHoveredFeature = null;
+});
 
 map.on("pointermove", function (event) {
   const now = Date.now();
@@ -271,23 +292,29 @@ map.on("pointermove", function (event) {
   map.getTargetElement().style.cursor = feature ? "pointer" : "";
 
   if (!feature) {
-    overlay.setPosition(undefined);
+    scheduleHide();
     return;
   }
 
   const features = feature.get("features");
   const visible = features?.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
   if (!visible || visible.length !== 1) {
-    overlay.setPosition(undefined);
+    scheduleHide();
     return;
   }
 
-  const actual = visible[0];
+  cancelHide();
+  if (visible[0] !== currentHoveredFeature) {
+    currentHoveredFeature = visible[0];
+    renderSinglePopup(visible[0], event.coordinate);
+  }
+});
+
+function renderSinglePopup(actual, coordinate) {
   const type = actual.get("type_tournage") || "Autre";
   const color = getColor(type);
   const inner = typeIconInners[type] || typeIconInners["Autre"];
   const iconSrc = makeSvgBadgeIcon(inner);
-
   const debut = formatDate(actual.get("date_debut"));
   const fin = formatDate(actual.get("date_fin"));
   const periode =
@@ -331,29 +358,31 @@ map.on("pointermove", function (event) {
     </div>
   `;
 
-  overlay.setPosition(event.coordinate);
-});
+  overlay.setPosition(coordinate);
+}
 
 map.on("singleclick", function (event) {
   const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
 
   if (!feature) {
     pinnedCluster = null;
+    pinnedCoordinate = null;
     overlay.setPosition(undefined);
     return;
   }
 
   const features = feature.get("features");
   const visible = features?.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+
   if (!visible || visible.length <= 1) {
     pinnedCluster = null;
+    pinnedCoordinate = null;
     overlay.setPosition(undefined);
     return;
   }
 
   pinnedCluster = feature;
   pinnedCoordinate = event.coordinate;
-
   renderClusterPopup(visible, event.coordinate);
 });
 

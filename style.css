@@ -272,7 +272,8 @@ body {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  min-width: 55px;
+  width: 72px;
+  flex-shrink: 0;
   padding-top: 2px;
 }
 
