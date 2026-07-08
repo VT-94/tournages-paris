@@ -154,10 +154,42 @@ const basemapLayer = new ol.layer.Tile({
   }),
 });
 
+// =====================
+// COUCHES ADMINISTRATIVES
+// =====================
+
+const adminFormat = new ol.format.GeoJSON({
+  dataProjection: "EPSG:4326",
+  featureProjection: "EPSG:3857",
+});
+
+const adminStyle = new ol.style.Style({
+  stroke: new ol.style.Stroke({ color: "rgb(0, 0, 0)", width: 0.3 }),
+  fill: new ol.style.Fill({ color: "transparent" }),
+});
+
+const arrondissementsLayer = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    format: adminFormat,
+    url: "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/arrondissements/exports/geojson",
+    strategy: ol.loadingstrategy.all,
+  }),
+  style: adminStyle,
+});
+
+const communesLayer = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    format: adminFormat,
+    url: "https://geo.api.gouv.fr/communes?codeRegion=11&format=geojson&geometry=contour",
+    strategy: ol.loadingstrategy.all,
+  }),
+  style: adminStyle,
+});
+
 const map = new ol.Map({
   target: "map",
 
-  layers: [basemapLayer, vectorLayer],
+  layers: [basemapLayer, communesLayer, arrondissementsLayer, vectorLayer],
 
   view: new ol.View({
     center: ol.proj.fromLonLat([2.3522, 48.8566]),
