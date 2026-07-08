@@ -227,6 +227,7 @@ async function loadData() {
       maxZoom: 15,
     });
 
+    document.getElementById("loading-banner").classList.add("hidden");
     console.log(`${features.length} points chargés`);
   } catch (error) {
     console.error(error);
