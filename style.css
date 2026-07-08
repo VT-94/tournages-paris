@@ -71,7 +71,9 @@ body {
   display: flex;
   align-items: center;
   gap: 9px;
-  transition: opacity 0.4s, transform 0.4s;
+  transition:
+    opacity 0.4s,
+    transform 0.4s;
 }
 
 #loading-banner.hidden {
@@ -81,7 +83,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 #search-box {

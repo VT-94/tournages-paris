@@ -82,7 +82,9 @@ const vectorLayer = new ol.layer.Vector({
 
   style: (feature) => {
     const features = feature.get("features");
-    const visible = features.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+    const visible = features.filter((f) =>
+      activeTypes.has(f.get("type_tournage") || "Autre"),
+    );
 
     if (visible.length === 0) return null;
 
@@ -155,10 +157,7 @@ const basemapLayer = new ol.layer.Tile({
 const map = new ol.Map({
   target: "map",
 
-  layers: [
-    basemapLayer,
-    vectorLayer,
-  ],
+  layers: [basemapLayer, vectorLayer],
 
   view: new ol.View({
     center: ol.proj.fromLonLat([2.3522, 48.8566]),
@@ -216,7 +215,9 @@ async function loadData() {
       features.push(feature);
     });
 
-    const seenTypes = new Set(data.map((item) => item.type_tournage).filter(Boolean));
+    const seenTypes = new Set(
+      data.map((item) => item.type_tournage).filter(Boolean),
+    );
     buildLegend(seenTypes);
 
     vectorSource.addFeatures(features);
@@ -251,7 +252,6 @@ const overlay = new ol.Overlay({
 });
 
 map.addOverlay(overlay);
-
 
 let lastMoveTime = 0;
 let pinnedCluster = null;
@@ -298,7 +298,9 @@ map.on("pointermove", function (event) {
   }
 
   const features = feature.get("features");
-  const visible = features?.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+  const visible = features?.filter((f) =>
+    activeTypes.has(f.get("type_tournage") || "Autre"),
+  );
   if (!visible || visible.length !== 1) {
     scheduleHide();
     return;
@@ -320,7 +322,9 @@ function renderSinglePopup(actual, coordinate) {
   const fin = formatDate(actual.get("date_fin"));
   const periode =
     debut && fin
-      ? debut === fin ? `le ${debut}` : `du ${debut} au ${fin}`
+      ? debut === fin
+        ? `le ${debut}`
+        : `du ${debut} au ${fin}`
       : debut
         ? `à partir du ${debut}`
         : null;
@@ -373,7 +377,9 @@ map.on("singleclick", function (event) {
   }
 
   const features = feature.get("features");
-  const visible = features?.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+  const visible = features?.filter((f) =>
+    activeTypes.has(f.get("type_tournage") || "Autre"),
+  );
 
   if (!visible || visible.length <= 1) {
     pinnedCluster = null;
@@ -403,7 +409,9 @@ function renderClusterPopup(visible, coordinate) {
       const fin = formatDate(f.get("date_fin"));
       const periode =
         debut && fin
-          ? debut === fin ? `le ${debut}` : `du ${debut} au ${fin}`
+          ? debut === fin
+            ? `le ${debut}`
+            : `du ${debut} au ${fin}`
           : debut
             ? `à partir du ${debut}`
             : null;
@@ -469,11 +477,15 @@ function buildLegend(seenTypes) {
         activeTypes.add(type);
         item.classList.remove("legend-toggle--off");
       }
-      Object.keys(clusterStyleCache).forEach((k) => delete clusterStyleCache[k]);
+      Object.keys(clusterStyleCache).forEach(
+        (k) => delete clusterStyleCache[k],
+      );
       vectorLayer.changed();
       if (pinnedCluster && pinnedCoordinate) {
         const features = pinnedCluster.get("features");
-        const visible = features.filter((f) => activeTypes.has(f.get("type_tournage") || "Autre"));
+        const visible = features.filter((f) =>
+          activeTypes.has(f.get("type_tournage") || "Autre"),
+        );
         if (visible.length >= 2) {
           renderClusterPopup(visible, pinnedCoordinate);
         } else {
@@ -558,7 +570,9 @@ function selectAddress(feature) {
   const coords = ol.proj.fromLonLat([lon, lat]);
 
   searchSource.clear();
-  searchSource.addFeature(new ol.Feature({ geometry: new ol.geom.Point(coords) }));
+  searchSource.addFeature(
+    new ol.Feature({ geometry: new ol.geom.Point(coords) }),
+  );
 
   map.getView().animate({ center: coords, zoom: 16, duration: 800 });
 
@@ -633,9 +647,9 @@ basemaps.forEach((bm, i) => {
     basemapLayer.setSource(
       new ol.source.XYZ({ url: bm.url, attributions: bm.attribution }),
     );
-    basemapPanel.querySelectorAll(".basemap-item").forEach((el) =>
-      el.classList.remove("basemap-item--active"),
-    );
+    basemapPanel
+      .querySelectorAll(".basemap-item")
+      .forEach((el) => el.classList.remove("basemap-item--active"));
     item.classList.add("basemap-item--active");
   });
   basemapPanel.appendChild(item);
