@@ -317,12 +317,16 @@ map.on("pointermove", function (event) {
   lastMoveTime = now;
 
   if (pinnedCluster) {
-    const hovered = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+    const hovered = map.forEachFeatureAtPixel(event.pixel, (f) => f, {
+      layerFilter: (l) => l === vectorLayer,
+    });
     map.getTargetElement().style.cursor = hovered ? "pointer" : "";
     return;
   }
 
-  const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+  const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f, {
+    layerFilter: (l) => l === vectorLayer,
+  });
 
   map.getTargetElement().style.cursor = feature ? "pointer" : "";
 
@@ -401,7 +405,9 @@ function renderSinglePopup(actual, coordinate) {
 }
 
 map.on("singleclick", function (event) {
-  const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+  const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f, {
+    layerFilter: (l) => l === vectorLayer,
+  });
 
   if (!feature) {
     pinnedCluster = null;
