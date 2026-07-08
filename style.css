@@ -11,6 +11,32 @@ body {
   height: 100vh;
 }
 
+#footer {
+  position: absolute;
+  bottom: 8px;
+  left: 60px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(4px);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  color: #555;
+  padding: 4px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#footer a {
+  color: #1a73e8;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+#footer a:hover {
+  text-decoration: underline;
+}
+
 .legend {
   position: absolute;
   bottom: 20px;
