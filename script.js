@@ -260,6 +260,8 @@ async function loadData() {
       maxZoom: 15,
     });
 
+    map.getView().setMinZoom(map.getView().getZoom());
+
     document.getElementById("loading-banner").classList.add("hidden");
     console.log(`${features.length} points chargés`);
   } catch (error) {
