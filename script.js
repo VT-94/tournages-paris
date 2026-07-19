@@ -260,7 +260,18 @@ async function loadData() {
       maxZoom: 15,
     });
 
-    map.getView().setMinZoom(map.getView().getZoom());
+    const fittedZoom = map.getView().getZoom();
+    const fittedCenter = map.getView().getCenter();
+    const fittedExtent = map.getView().calculateExtent(map.getSize());
+
+    map.setView(
+      new ol.View({
+        center: fittedCenter,
+        zoom: fittedZoom,
+        minZoom: fittedZoom,
+        extent: fittedExtent,
+      }),
+    );
 
     document.getElementById("loading-banner").classList.add("hidden");
     console.log(`${features.length} points chargés`);
