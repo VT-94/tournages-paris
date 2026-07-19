@@ -122,10 +122,10 @@ const vectorLayer = new ol.layer.Vector({
 
 const basemaps = [
   {
-    id: "esri-gray",
-    name: "ESRI Gris",
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-    attribution: "© Esri",
+    id: "carto-light",
+    name: "Fond gris",
+    url: "https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
+    attribution: "© OpenStreetMap contributors © CARTO",
   },
   {
     id: "osm",
@@ -260,18 +260,7 @@ async function loadData() {
       maxZoom: 15,
     });
 
-    const fittedZoom = map.getView().getZoom();
-    const fittedCenter = map.getView().getCenter();
-    const fittedExtent = map.getView().calculateExtent(map.getSize());
-
-    map.setView(
-      new ol.View({
-        center: fittedCenter,
-        zoom: fittedZoom,
-        minZoom: fittedZoom,
-        extent: fittedExtent,
-      }),
-    );
+    map.getView().setMinZoom(map.getView().getZoom());
 
     document.getElementById("loading-banner").classList.add("hidden");
     console.log(`${features.length} points chargés`);
