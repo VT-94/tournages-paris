@@ -11,6 +11,9 @@ export const COMMUNES_URL =
   "https://geo.api.gouv.fr/communes?codeRegion=11&format=geojson&geometry=contour";
 export const ADRESSE_API_URL = "https://api-adresse.data.gouv.fr/search/";
 
+// Clé du fond de carte gris CARTO.
+export const CARTO_API_KEY = "cb1_40bw_1_68f72b31a577d3582fd70e05";
+
 // Carte
 export const PARIS_CENTER = { lon: 2.3522, lat: 48.8566 };
 export const INITIAL_ZOOM = 12;
