@@ -11,11 +11,7 @@ export async function fetchTournages() {
     throw new Error(`Erreur API ${response.status}`);
   }
 
-  const data = await response.json();
-
-  console.log(data);
-
-  return data;
+  return response.json();
 }
 
 export function toFeatures(data) {
