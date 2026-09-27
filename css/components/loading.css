@@ -19,6 +19,15 @@
     transform 0.4s;
 }
 
+#loading-banner.error {
+  background: #fdecea;
+  color: #b3261e;
+}
+
+#loading-banner.error svg {
+  display: none;
+}
+
 #loading-banner.hidden {
   opacity: 0;
   transform: translateX(-50%) translateY(-8px);

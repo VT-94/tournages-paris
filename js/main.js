@@ -26,7 +26,8 @@ async function loadData() {
     hideLoading();
     console.log(`${features.length} points chargés`);
   } catch (error) {
-    showError(error);
+    console.error(error);
+    showError(`Impossible de charger les tournages (${error.message})`);
   }
 }
 

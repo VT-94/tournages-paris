@@ -29,6 +29,9 @@ export const SEARCH_RESULTS_LIMIT = 8;
 export const SEARCH_DEBOUNCE_DELAY = 300;
 export const SEARCH_BLUR_DELAY = 150;
 
+// Durée d'affichage d'un message temporaire dans le bandeau
+export const MESSAGE_DURATION = 4000;
+
 // Popup
 export const POINTER_MOVE_THROTTLE = 30;
 export const POPUP_HIDE_DELAY = 400;

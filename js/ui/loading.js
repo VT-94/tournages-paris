@@ -1,13 +1,21 @@
 // =====================
-// BANDEAU DE CHARGEMENT
+// BANDEAU DE CHARGEMENT ET DE MESSAGES
 // =====================
 
+const banner = document.getElementById("loading-banner");
+const bannerText = document.getElementById("loading-text");
+let hideTimeout = null;
+
 export function hideLoading() {
-  document.getElementById("loading-banner").classList.add("hidden");
+  banner.classList.add("hidden");
 }
 
-export function showError(error) {
-  console.error(error);
-
-  alert(error.message);
+// Affiche un message d'erreur dans le bandeau.
+// Sans durée, le message reste affiché.
+export function showError(text, duration) {
+  clearTimeout(hideTimeout);
+  bannerText.textContent = text;
+  banner.classList.add("error");
+  banner.classList.remove("hidden");
+  if (duration) hideTimeout = setTimeout(hideLoading, duration);
 }

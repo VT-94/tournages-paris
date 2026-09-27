@@ -2,16 +2,20 @@
 // GÉOLOCALISATION
 // =====================
 
-import { LOCATE_ZOOM, ANIMATION_DURATION } from "../config.js";
+import { LOCATE_ZOOM, ANIMATION_DURATION, MESSAGE_DURATION } from "../config.js";
 import { map } from "../map/map.js";
 import { userSource } from "../map/layers/user.js";
+import { showError } from "./loading.js";
 
 export function initGeolocation() {
   const locateBtn = document.getElementById("locate-btn");
 
   locateBtn.addEventListener("click", function () {
     if (!navigator.geolocation) {
-      alert("La géolocalisation n'est pas supportée par votre navigateur.");
+      showError(
+        "La géolocalisation n'est pas supportée par votre navigateur.",
+        MESSAGE_DURATION,
+      );
       return;
     }
 
@@ -36,7 +40,7 @@ export function initGeolocation() {
         locateBtn.classList.add("active");
       },
       function () {
-        alert("Impossible d'obtenir votre position.");
+        showError("Impossible d'obtenir votre position.", MESSAGE_DURATION);
       },
     );
   });
