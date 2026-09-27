@@ -8,7 +8,7 @@ import { map } from "../map/map.js";
 import { vectorLayer } from "../map/layers/tournages.js";
 import { getColor, typeIconInners } from "../map/styles/types.js";
 import { makeSvgBadgeIcon } from "../map/styles/markers.js";
-import { formatDate } from "../utils/format.js";
+import { formatDate, formatPeriode } from "../utils/format.js";
 
 const popupContainer = document.getElementById("popup");
 
@@ -81,16 +81,9 @@ function renderSinglePopup(actual, coordinate) {
   const color = getColor(type);
   const inner = typeIconInners[type] || typeIconInners["Autre"];
   const iconSrc = makeSvgBadgeIcon(inner);
-  const debut = formatDate(actual.get("date_debut"));
-  const fin = formatDate(actual.get("date_fin"));
-  const periode =
-    debut && fin
-      ? debut === fin
-        ? `le ${debut}`
-        : `du ${debut} au ${fin}`
-      : debut
-        ? `à partir du ${debut}`
-        : null;
+  const periode = formatPeriode(actual.get("date_debut"), actual.get("date_fin"));
+  const memeJour =
+    formatDate(actual.get("date_debut")) === formatDate(actual.get("date_fin"));
 
   popupContainer.innerHTML = `
     <div class="popup-header">
@@ -118,7 +111,7 @@ function renderSinglePopup(actual, coordinate) {
         periode
           ? `
       <div class="popup-row">
-        <span class="popup-label">${debut === fin ? "Date" : "Dates"}</span>
+        <span class="popup-label">${memeJour ? "Date" : "Dates"}</span>
         <span class="popup-value">${periode}</span>
       </div>`
           : ""
@@ -166,16 +159,7 @@ function renderClusterPopup(visible, coordinate) {
       const color = getColor(type);
       const inner = typeIconInners[type] || typeIconInners["Autre"];
       const iconSrc = makeSvgBadgeIcon(inner);
-      const debut = formatDate(f.get("date_debut"));
-      const fin = formatDate(f.get("date_fin"));
-      const periode =
-        debut && fin
-          ? debut === fin
-            ? `le ${debut}`
-            : `du ${debut} au ${fin}`
-          : debut
-            ? `à partir du ${debut}`
-            : null;
+      const periode = formatPeriode(f.get("date_debut"), f.get("date_fin"));
       return `
         <div class="popup-list-item">
           <span class="popup-badge" style="background:${color};padding:2px 7px">
