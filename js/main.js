@@ -1,0 +1,39 @@
+// =====================
+// POINT D'ENTRÉE
+// =====================
+
+import { vectorSource } from "./map/layers/tournages.js";
+import { fitAndLockToExtent } from "./map/map.js";
+import { fetchTournages, toFeatures, getSeenTypes } from "./data/tournages.js";
+import { initPopup } from "./ui/popup.js";
+import { initLegend, buildLegend } from "./ui/legend.js";
+import { initSearch } from "./ui/search.js";
+import { initGeolocation } from "./ui/geolocation.js";
+import { initBasemapPicker } from "./ui/basemap-picker.js";
+import { hideLoading, showError } from "./ui/loading.js";
+
+async function loadData() {
+  try {
+    const data = await fetchTournages();
+    const features = toFeatures(data);
+
+    buildLegend(getSeenTypes(data));
+
+    vectorSource.addFeatures(features);
+
+    fitAndLockToExtent(vectorSource.getExtent());
+
+    hideLoading();
+    console.log(`${features.length} points chargés`);
+  } catch (error) {
+    showError(error);
+  }
+}
+
+initPopup();
+initLegend();
+initSearch();
+initGeolocation();
+initBasemapPicker();
+
+loadData();
