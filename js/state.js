@@ -10,3 +10,10 @@ export const state = {
   pinnedCluster: null,
   pinnedCoordinate: null,
 };
+
+// Tournages d'un groupe dont le type est coché dans la légende
+export function getVisibleFeatures(cluster) {
+  return cluster
+    .get("features")
+    ?.filter((f) => state.activeTypes.has(f.get("type_tournage") || "Autre"));
+}

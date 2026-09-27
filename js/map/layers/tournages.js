@@ -3,7 +3,7 @@
 // =====================
 
 import { CLUSTER_DISTANCE } from "../../config.js";
-import { state } from "../../state.js";
+import { getVisibleFeatures } from "../../state.js";
 import { getMarkerStyle } from "../styles/markers.js";
 import { getClusterStyle } from "../styles/clusters.js";
 
@@ -18,10 +18,7 @@ export const vectorLayer = new ol.layer.Vector({
   source: clusterSource,
 
   style: (feature) => {
-    const features = feature.get("features");
-    const visible = features.filter((f) =>
-      state.activeTypes.has(f.get("type_tournage") || "Autre"),
-    );
+    const visible = getVisibleFeatures(feature);
 
     if (visible.length === 0) return null;
 

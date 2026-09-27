@@ -3,7 +3,7 @@
 // =====================
 
 import { POINTER_MOVE_THROTTLE, POPUP_HIDE_DELAY } from "../config.js";
-import { state } from "../state.js";
+import { state, getVisibleFeatures } from "../state.js";
 import { map } from "../map/map.js";
 import { vectorLayer } from "../map/layers/tournages.js";
 import { getColor, typeIconInners } from "../map/styles/types.js";
@@ -60,10 +60,7 @@ function onPointerMove(event) {
     return;
   }
 
-  const features = feature.get("features");
-  const visible = features?.filter((f) =>
-    state.activeTypes.has(f.get("type_tournage") || "Autre"),
-  );
+  const visible = getVisibleFeatures(feature);
   if (!visible || visible.length !== 1) {
     scheduleHide();
     return;
@@ -132,10 +129,7 @@ function onSingleClick(event) {
     return;
   }
 
-  const features = feature.get("features");
-  const visible = features?.filter((f) =>
-    state.activeTypes.has(f.get("type_tournage") || "Autre"),
-  );
+  const visible = getVisibleFeatures(feature);
 
   if (!visible || visible.length <= 1) {
     closePinnedPopup();
@@ -197,10 +191,7 @@ function closePinnedPopup() {
 // Met à jour la liste ouverte après un changement de filtre dans la légende
 export function refreshPinnedPopup() {
   if (state.pinnedCluster && state.pinnedCoordinate) {
-    const features = state.pinnedCluster.get("features");
-    const visible = features.filter((f) =>
-      state.activeTypes.has(f.get("type_tournage") || "Autre"),
-    );
+    const visible = getVisibleFeatures(state.pinnedCluster);
     if (visible.length >= 2) {
       renderClusterPopup(visible, state.pinnedCoordinate);
     } else {
