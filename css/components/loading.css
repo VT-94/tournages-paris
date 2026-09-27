@@ -24,7 +24,18 @@
   color: #b3261e;
 }
 
-#loading-banner.error svg {
+#loading-banner .spinner {
+  width: 15px;
+  height: 15px;
+  box-sizing: border-box;
+  border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: spin 0.9s linear infinite;
+}
+
+#loading-banner.error .spinner {
   display: none;
 }
 
