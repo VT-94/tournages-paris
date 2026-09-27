@@ -124,7 +124,7 @@ const basemaps = [
   {
     id: "carto-light",
     name: "Fond gris",
-    url: "https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
+    url: "https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png?key=cb1_40bw_1_68f72b31a577d3582fd70e05",
     attribution: "© OpenStreetMap contributors © CARTO",
   },
   {
