@@ -8,6 +8,7 @@ import { typeColors, getColor, typeIconInners } from "../map/styles/types.js";
 import { makeSvgMarker } from "../map/styles/markers.js";
 import { clearClusterStyleCache } from "../map/styles/clusters.js";
 import { refreshPinnedPopup } from "./popup.js";
+import { escapeHtml } from "../utils/dom.js";
 
 let legend = null;
 
@@ -34,7 +35,7 @@ export function buildLegend(seenTypes) {
     const inner = typeIconInners[type] || typeIconInners["Autre"];
     const item = document.createElement("div");
     item.className = "legend-item legend-toggle";
-    item.innerHTML = `<img src="${makeSvgMarker(color, inner)}" width="20" height="20" style="margin-right:8px;flex-shrink:0">${type}`;
+    item.innerHTML = `<img src="${makeSvgMarker(color, inner)}" width="20" height="20" style="margin-right:8px;flex-shrink:0">${escapeHtml(type)}`;
     item.addEventListener("click", () => {
       if (state.activeTypes.has(type)) {
         state.activeTypes.delete(type);

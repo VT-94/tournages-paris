@@ -9,6 +9,7 @@ import { vectorLayer } from "../map/layers/tournages.js";
 import { getColor, typeIconInners } from "../map/styles/types.js";
 import { makeSvgBadgeIcon } from "../map/styles/markers.js";
 import { formatDate, formatPeriode } from "../utils/format.js";
+import { escapeHtml } from "../utils/dom.js";
 
 const popupContainer = document.getElementById("popup");
 
@@ -84,10 +85,10 @@ function renderSinglePopup(actual, coordinate) {
 
   popupContainer.innerHTML = `
     <div class="popup-header">
-      <h3 class="popup-title">${actual.get("nom_tournage") || "Sans nom"}</h3>
+      <h3 class="popup-title">${escapeHtml(actual.get("nom_tournage") || "Sans nom")}</h3>
       <span class="popup-badge" style="background:${color}">
         <img src="${iconSrc}" width="20" height="20" style="vertical-align:middle;margin-right:5px">
-        ${type}
+        ${escapeHtml(type)}
       </span>
     </div>
     <div class="popup-body">
@@ -96,13 +97,13 @@ function renderSinglePopup(actual, coordinate) {
           ? `
       <div class="popup-row">
         <span class="popup-label">Réalisateur</span>
-        <span class="popup-value">${actual.get("nom_realisateur")}</span>
+        <span class="popup-value">${escapeHtml(actual.get("nom_realisateur"))}</span>
       </div>`
           : ""
       }
       <div class="popup-row">
         <span class="popup-label">Adresse</span>
-        <span class="popup-value">${actual.get("adresse_lieu") || "—"}</span>
+        <span class="popup-value">${escapeHtml(actual.get("adresse_lieu") || "—")}</span>
       </div>
       ${
         periode
@@ -158,11 +159,11 @@ function renderClusterPopup(visible, coordinate) {
         <div class="popup-list-item">
           <span class="popup-badge" style="background:${color};padding:2px 7px">
             <img src="${iconSrc}" width="14" height="14" style="vertical-align:middle;margin-right:4px">
-            ${type}
+            ${escapeHtml(type)}
           </span>
           <div class="popup-list-info">
-            <span class="popup-list-title">${f.get("nom_tournage") || "Sans nom"}</span>
-            ${f.get("nom_realisateur") ? `<span class="popup-list-director">${f.get("nom_realisateur")}</span>` : ""}
+            <span class="popup-list-title">${escapeHtml(f.get("nom_tournage") || "Sans nom")}</span>
+            ${f.get("nom_realisateur") ? `<span class="popup-list-director">${escapeHtml(f.get("nom_realisateur"))}</span>` : ""}
             ${periode ? `<span class="popup-list-year">${periode}</span>` : ""}
           </div>
         </div>
