@@ -10,6 +10,7 @@ import { getColor, typeIconInners } from "../map/styles/types.js";
 import { makeSvgBadgeIcon } from "../map/styles/markers.js";
 import { formatDate, formatPeriode } from "../utils/format.js";
 import { escapeHtml } from "../utils/dom.js";
+import { onFiltersChange } from "../filters.js";
 
 const popupContainer = document.getElementById("popup");
 
@@ -189,8 +190,8 @@ function closePinnedPopup() {
   overlay.setPosition(undefined);
 }
 
-// Met à jour la liste ouverte après un changement de filtre dans la légende
-export function refreshPinnedPopup() {
+// Met à jour la liste ouverte après un changement de filtre
+function refreshPinnedPopup() {
   if (state.pinnedCluster && state.pinnedCoordinate) {
     const visible = getVisibleFeatures(state.pinnedCluster);
     if (visible.length >= 2) {
@@ -212,4 +213,6 @@ export function initPopup() {
 
   map.on("pointermove", onPointerMove);
   map.on("singleclick", onSingleClick);
+
+  onFiltersChange(refreshPinnedPopup);
 }

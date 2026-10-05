@@ -3,11 +3,9 @@
 // =====================
 
 import { state } from "../state.js";
-import { vectorLayer } from "../map/layers/tournages.js";
+import { applyFilters } from "../filters.js";
 import { typeColors, getColor, typeIconInners } from "../map/styles/types.js";
 import { makeSvgMarker } from "../map/styles/markers.js";
-import { clearClusterStyleCache } from "../map/styles/clusters.js";
-import { refreshPinnedPopup } from "./popup.js";
 import { escapeHtml } from "../utils/dom.js";
 
 let legend = null;
@@ -44,9 +42,7 @@ export function buildLegend(seenTypes) {
         state.activeTypes.add(type);
         item.classList.remove("legend-toggle--off");
       }
-      clearClusterStyleCache();
-      vectorLayer.changed();
-      refreshPinnedPopup();
+      applyFilters();
     });
     legend.appendChild(item);
   });

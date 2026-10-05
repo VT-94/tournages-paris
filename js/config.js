@@ -32,6 +32,13 @@ export const SEARCH_RESULTS_LIMIT = 8;
 export const SEARCH_DEBOUNCE_DELAY = 300;
 export const SEARCH_BLUR_DELAY = 150;
 
+// Recherche de titre / réalisateur
+export const SEARCH_LOCAL_MIN_CHARS = 2;
+export const SEARCH_LOCAL_LIMIT = 5;
+export const SEARCH_ADDRESS_LIMIT = 4;
+export const FILTER_FIT_PADDING = [80, 80, 200, 80];
+export const FILTER_FIT_MAX_ZOOM = 16;
+
 // Durée d'affichage d'un message temporaire dans le bandeau
 export const MESSAGE_DURATION = 4000;
 

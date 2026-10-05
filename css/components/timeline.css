@@ -1,0 +1,338 @@
+/* Frise des dates, en bas au centre de la carte */
+
+#timeline {
+  --thumb-size: 16px;
+  --accent: #1a73e8;
+
+  position: absolute;
+  bottom: 36px;
+  left: 60px;
+  right: 180px;
+  max-width: 760px;
+  margin: 0 auto;
+  z-index: 1000;
+  box-sizing: border-box;
+  padding: 8px 14px 6px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  color: #333;
+}
+
+#timeline[hidden] {
+  display: none;
+}
+
+/* ---------- En-tête : bouton replier + résumé ---------- */
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+#timeline-toggle {
+  flex-shrink: 0;
+  padding: 2px 8px 2px 4px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+}
+
+#timeline-toggle:hover {
+  background: #f0f0f0;
+}
+
+.timeline-arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.timeline-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #555;
+}
+
+#timeline-count {
+  color: var(--accent);
+}
+
+.timeline--collapsed #timeline-body {
+  display: none;
+}
+
+.timeline--collapsed .timeline-arrow {
+  transform: rotate(-90deg);
+}
+
+/* ---------- Menus Année / Mois / Jour ---------- */
+
+.timeline-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 6px;
+}
+
+.timeline-controls select,
+#date-reset {
+  padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font: inherit;
+  color: #333;
+  cursor: pointer;
+}
+
+.timeline-controls select:focus-visible,
+#date-reset:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+#date-reset {
+  margin-left: auto;
+  border-color: transparent;
+  color: var(--accent);
+}
+
+#date-reset:hover {
+  background: #e8f0fe;
+}
+
+/* ---------- Histogramme : tournages par mois ---------- */
+
+#timeline-histogram {
+  position: relative;
+  height: 36px;
+  margin: 0 calc(var(--thumb-size) / 2);
+}
+
+/* Une colonne par mois, sur toute la hauteur : c'est elle qu'on survole */
+.timeline-column {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  cursor: pointer;
+}
+
+.timeline-column:hover {
+  background: rgba(26, 115, 232, 0.08);
+}
+
+.timeline-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  border-left: 1px solid white;
+  background: var(--accent);
+  opacity: 0.75;
+}
+
+.timeline-column:hover .timeline-bar {
+  opacity: 1;
+}
+
+.timeline-column--off .timeline-bar {
+  background: #c9ced6;
+  opacity: 0.6;
+}
+
+.timeline-column--off:hover .timeline-bar {
+  background: #9aa3b0;
+}
+
+/* Infobulle au survol d'une barre */
+.timeline-tooltip {
+  --arrow-offset: 0px;
+
+  position: absolute;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: #1f2329;
+  color: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: timeline-tooltip-in 0.12s ease-out;
+}
+
+.timeline-tooltip[hidden] {
+  display: none;
+}
+
+/* Petite pointe vers la barre survolée */
+.timeline-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% + var(--arrow-offset));
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2329;
+}
+
+.timeline-tooltip strong {
+  font-size: 12px;
+}
+
+.timeline-tooltip-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8ab4f8;
+}
+
+.timeline-tooltip-hint {
+  margin-top: 2px;
+  font-size: 10px;
+  color: #aab0b8;
+}
+
+@keyframes timeline-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(3px);
+  }
+}
+
+/* ---------- Curseur à deux poignées ---------- */
+
+.timeline-slider {
+  position: relative;
+  height: var(--thumb-size);
+  margin-top: 2px;
+}
+
+/* La piste s'arrête à une demi-poignée de chaque bord : c'est la zone
+   parcourue par le centre des poignées */
+.timeline-track {
+  position: absolute;
+  top: calc(50% - 2px);
+  left: calc(var(--thumb-size) / 2);
+  right: calc(var(--thumb-size) / 2);
+  height: 4px;
+  border-radius: 2px;
+  background: #e3e6ea;
+}
+
+#timeline-band {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.timeline-slider input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 2;
+}
+
+.timeline-slider input.timeline-input--top {
+  z-index: 3;
+}
+
+.timeline-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 100%;
+  background: none;
+}
+
+.timeline-slider input[type="range"]::-moz-range-track {
+  background: none;
+}
+
+.timeline-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  box-sizing: border-box;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+}
+
+.timeline-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  box-sizing: border-box;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+}
+
+.timeline-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.timeline-slider input[type="range"]:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Années sous la frise ---------- */
+
+#timeline-years {
+  position: relative;
+  height: 16px;
+  margin: 0 calc(var(--thumb-size) / 2);
+}
+
+.timeline-year {
+  position: absolute;
+  top: 2px;
+  padding-left: 3px;
+  border-left: 1px solid #ccc;
+  font-size: 10px;
+  line-height: 12px;
+  color: #888;
+}
+
+/* ---------- Petits écrans ---------- */
+
+@media (max-width: 700px) {
+  #timeline {
+    left: 60px;
+    right: 10px;
+    z-index: 1001;
+  }
+
+  #date-reset {
+    margin-left: 0;
+  }
+}

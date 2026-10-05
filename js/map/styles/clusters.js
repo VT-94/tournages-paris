@@ -21,7 +21,3 @@ export function getClusterStyle(count) {
   });
   return clusterStyleCache[count];
 }
-
-export function clearClusterStyleCache() {
-  Object.keys(clusterStyleCache).forEach((k) => delete clusterStyleCache[k]);
-}

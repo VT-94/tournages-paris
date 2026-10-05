@@ -28,10 +28,69 @@
       <input
         id="search-input"
         type="text"
-        placeholder="Rechercher une adresse…"
+        placeholder="Titre, réalisateur ou adresse…"
         autocomplete="off"
+        aria-label="Rechercher un titre, un réalisateur ou une adresse"
       />
       <ul id="search-results"></ul>
+      <div id="search-chips"></div>
+    </div>
+
+    <div id="timeline" hidden>
+      <div class="timeline-header">
+        <button
+          id="timeline-toggle"
+          type="button"
+          aria-expanded="true"
+          aria-controls="timeline-body"
+          title="Afficher / masquer la frise"
+        >
+          <span class="timeline-arrow">▾</span> Dates
+        </button>
+        <span class="timeline-summary">
+          <span id="timeline-label"></span> ·
+          <strong id="timeline-count"></strong>
+        </span>
+      </div>
+
+      <div id="timeline-body">
+        <div class="timeline-controls">
+          <select id="date-year" aria-label="Année">
+            <option value="">Année</option>
+          </select>
+          <select id="date-month" aria-label="Mois">
+            <option value="">Mois</option>
+          </select>
+          <select id="date-day" aria-label="Jour">
+            <option value="">Jour</option>
+          </select>
+          <button id="date-reset" type="button" title="Afficher toute la période">
+            ↺ Toute la période
+          </button>
+        </div>
+
+        <div id="timeline-histogram"></div>
+
+        <div class="timeline-slider">
+          <div class="timeline-track">
+            <div id="timeline-band"></div>
+          </div>
+          <input
+            id="timeline-start"
+            type="range"
+            step="1"
+            aria-label="Début de la période"
+          />
+          <input
+            id="timeline-end"
+            type="range"
+            step="1"
+            aria-label="Fin de la période"
+          />
+        </div>
+
+        <div id="timeline-years"></div>
+      </div>
     </div>
 
     <div id="basemap-panel"></div>
